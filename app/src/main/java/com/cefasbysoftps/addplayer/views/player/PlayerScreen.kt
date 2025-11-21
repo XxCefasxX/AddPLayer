@@ -1,3 +1,4 @@
+import android.app.Application
 import android.media.browse.MediaBrowser
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -23,14 +24,30 @@ import androidx.media3.ui.PlayerView
 
 @Composable
 fun PlayerScreen(
-    viewModel: PlayerViewModel = viewModel()
+
 )
  {
+
+     val context = LocalContext.current
+
+     // Instanciamos el AndroidViewModel usando ViewModelProvider.Factory
+     val viewModel: PlayerViewModel = viewModel(
+         factory = object : androidx.lifecycle.ViewModelProvider.Factory {
+             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                 if (modelClass.isAssignableFrom(PlayerViewModel::class.java)) {
+                     @Suppress("UNCHECKED_CAST")
+                     return PlayerViewModel(context.applicationContext as Application) as T
+                 }
+                 throw IllegalArgumentException("Unknown ViewModel class")
+             }
+         }
+     )
+
+
     viewModel.loadDummyVideo()
     val videoPath by viewModel.videoPath.collectAsState()
 
-    // Crear ExoPlayer dentro de Compose
-    val context = LocalContext.current
+
      val exoPlayer = remember {
          ExoPlayer.Builder(context).build().apply {
              repeatMode = ExoPlayer.REPEAT_MODE_ONE
@@ -39,6 +56,7 @@ fun PlayerScreen(
 
     LaunchedEffect(videoPath) {
         videoPath?.let { path ->
+            viewModel.startTracking()
             val mediaItem = MediaItem.fromUri(path)
             exoPlayer.setMediaItem(mediaItem)
             exoPlayer.prepare()
@@ -48,6 +66,7 @@ fun PlayerScreen(
 
     DisposableEffect(Unit) {
         onDispose {
+            viewModel.stopTracking()
             exoPlayer.release()
         }
     }

@@ -1,3 +1,4 @@
+import android.app.Application
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,11 +22,30 @@ fun MainScreen(navController: NavController, viewModel: DownloaderViewModel = vi
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    // Instanciamos el PlayerViewModel para obtener el tiempo acumulado
+    val playerViewModel: PlayerViewModel = viewModel(
+        factory = object : androidx.lifecycle.ViewModelProvider.Factory {
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                if (modelClass.isAssignableFrom(PlayerViewModel::class.java)) {
+                    @Suppress("UNCHECKED_CAST")
+                    return PlayerViewModel(context.applicationContext as Application) as T
+                }
+                throw IllegalArgumentException("Unknown ViewModel class")
+            }
+        }
+    )
+
+
+
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    ) { // Texto con tiempo acumulado
+        Text(
+            text = "Tiempo reproducido hoy: ${playerViewModel.accumulatedTimeMs / 1000 / 60} min",
+            modifier = Modifier.padding(bottom = 24.dp)
+        )
         Button(onClick = {
             // Navegar al PlayerScreen
             navController.navigate("player")
