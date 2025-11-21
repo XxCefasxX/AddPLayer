@@ -13,9 +13,11 @@ import androidx.navigation.NavController
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import android.content.Context
+import android.util.Log
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
-fun MainScreen(navController: NavController, viewModel: PlayerViewModel = viewModel()) {
+fun MainScreen(navController: NavController, viewModel: DownloaderViewModel = viewModel()) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -34,10 +36,12 @@ fun MainScreen(navController: NavController, viewModel: PlayerViewModel = viewMo
         Button(
             modifier = Modifier.padding(top = 16.dp),
             onClick = {
+                // Debug (Para desarrollo)
+                Log.d("TAG", "click")
                 // Descargar video
                 scope.launch {
                     viewModel.downloadVideo(
-                        url = "https://www.miweb.com/video.mp4",
+                        url = "https://cdn.soft-ps.com/addplayer/demo.mp4",
                         fileName = "demo.mp4",
                         context = context
                     )
