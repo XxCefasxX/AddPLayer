@@ -69,4 +69,10 @@ dependencies {
     // Para argumentos de navegación (opcional)
     implementation("androidx.navigation:navigation-common:2.8.0")
 
+    // OkHttp Core
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    // Logging Interceptor (MUY recomendado para debug)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
 }
