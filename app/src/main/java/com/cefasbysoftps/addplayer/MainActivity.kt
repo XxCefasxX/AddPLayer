@@ -1,9 +1,11 @@
 package com.cefasbysoftps.addplayer
 
 import DownloaderViewModel
+import LoginScreen
 import MainScreen
 import PlayerScreen
 import PlayerViewModel
+import SplashScreen
 import android.os.Bundle
 import android.os.Environment
 import androidx.activity.ComponentActivity
@@ -40,10 +42,18 @@ class MainActivity : ComponentActivity() {
 // -------------------- Navigation Graph --------------------
 @Composable
 fun SetupNavGraph(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = "main") {
+    NavHost(navController = navController, startDestination = "splash") {
+
+        composable("splash") {
+            SplashScreen(navController)
+        }
+
+        composable("login") {
+            LoginScreen(navController)
+        }
+
         composable("main") {
-            val downloaderViewModel: DownloaderViewModel = viewModel()
-            MainScreen(navController, downloaderViewModel)
+            MainScreen(navController)
         }
 
         composable("player") {
