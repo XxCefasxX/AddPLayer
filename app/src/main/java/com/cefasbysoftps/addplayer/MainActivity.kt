@@ -1,6 +1,11 @@
 package com.cefasbysoftps.addplayer
 
+import DownloaderViewModel
+import LoginScreen
+import MainScreen
 import PlayerScreen
+import PlayerViewModel
+import SplashScreen
 import android.os.Bundle
 import android.os.Environment
 import androidx.activity.ComponentActivity
@@ -13,6 +18,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.cefasbysoftps.addplayer.ui.theme.AddPLayerTheme
 
 class MainActivity : ComponentActivity() {
@@ -23,24 +33,31 @@ class MainActivity : ComponentActivity() {
             AddPLayerTheme {
 //                val moviesDir = getExternalFilesDir(Environment.DIRECTORY_MOVIES)
 //                moviesDir?.mkdirs()
-                PlayerScreen()
+                val navController = rememberNavController()
+                SetupNavGraph(navController)
             }
         }
     }
 }
-
+// -------------------- Navigation Graph --------------------
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun SetupNavGraph(navController: NavHostController) {
+    NavHost(navController = navController, startDestination = "splash") {
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AddPLayerTheme {
-        Greeting("Android")
+        composable("splash") {
+            SplashScreen(navController)
+        }
+
+        composable("login") {
+            LoginScreen(navController)
+        }
+
+        composable("main") {
+            MainScreen(navController)
+        }
+
+        composable("player") {
+            PlayerScreen()
+        }
     }
 }
