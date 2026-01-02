@@ -28,7 +28,15 @@ class LoginViewModel(
 
             result
                 .onSuccess {
-                    sessionDataStore.setLoggedIn(true)
+                        response ->
+                    sessionDataStore.saveUser(
+                        User(
+                            userID = response.user.userID,
+                            name = response.user.name,
+                            lastName = response.user.lastName,
+                            email = response.user.email
+                        )
+                    )
                     _loginSuccess.value = true
                 }
                 .onFailure {

@@ -9,10 +9,10 @@ class FakeUserLocalDataSource {
         return fakeUser[username] == password
     }
 
-    fun getUser(username: String): User {
-        return User(
-            id = "1",
-            name = username
-        )
-    }
+//    fun getUser(username: String): User {
+//        return User(
+//            id = "1",
+//            name = username
+//        )
+//    }
 }

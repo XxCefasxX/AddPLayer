@@ -24,15 +24,16 @@ fun LoginScreen(
         factory = LoginViewModelFactory(sessionDataStore)
     )
 
-    val loginSuccess by viewModel.loginSuccess.collectAsState()
     val errorMessage by viewModel.error.collectAsState()
 
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    LaunchedEffect(loginSuccess) {
 
-        if (loginSuccess) {
+    val user by sessionDataStore.user.collectAsState(initial = null)
+
+    LaunchedEffect(user) {
+        if (user != null) {
             navController.navigate("main") {
                 popUpTo("login") { inclusive = true }
             }
