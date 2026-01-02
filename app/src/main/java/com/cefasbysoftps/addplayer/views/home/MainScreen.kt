@@ -22,7 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 
 @Composable
-fun MainScreen(navController: NavController, viewModel: DownloaderViewModel = viewModel()) {
+fun MainScreen(navController: NavController, viewModel: DownloaderViewModel = viewModel(),) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -92,6 +92,13 @@ fun MainScreen(navController: NavController, viewModel: DownloaderViewModel = vi
             }
         ) {
             Text("Descargar video")
+        }
+
+        Button(  modifier = Modifier.padding(top = 16.dp),
+            onClick = {
+                navController.navigate("history")
+            }) {
+            Text("Historial")
         }
 
         Button(  modifier = Modifier.padding(top = 16.dp),

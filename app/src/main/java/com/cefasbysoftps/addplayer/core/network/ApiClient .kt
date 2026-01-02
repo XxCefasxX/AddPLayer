@@ -6,6 +6,10 @@ object ApiClient {
         retrofit.create(AuthApi::class.java)
     }
 
+    val reportApi: ReportApi by lazy{
+        retrofit.create(ReportApi::class.java)
+    }
+
     private val retrofit by lazy {
         retrofit2.Retrofit.Builder()
             .baseUrl(BASE_URL)
