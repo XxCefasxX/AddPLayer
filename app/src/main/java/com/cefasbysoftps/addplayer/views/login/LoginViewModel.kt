@@ -17,11 +17,12 @@ class LoginViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error = _error.asStateFlow()
 
+    private val _loggedOut = MutableStateFlow(false)
+    val loggedOut = _loggedOut.asStateFlow()
+
     fun login(email: String, password: String) {
 
-//        viewModelScope.launch {
-//            sessionDataStore.setLoggedIn(false)
-//        }
+
         viewModelScope.launch {
             val result = loginUseCase(email, password)
 
@@ -33,6 +34,12 @@ class LoginViewModel(
                 .onFailure {
                     _error.value = "Credenciales inválidas"
                 }
+        }
+    }
+    fun logout(){
+        viewModelScope.launch {
+            sessionDataStore.clearSession()
+            _loggedOut.value = true
         }
     }
 }
