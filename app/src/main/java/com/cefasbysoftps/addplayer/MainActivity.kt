@@ -31,8 +31,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AddPLayerTheme {
+
 //                val moviesDir = getExternalFilesDir(Environment.DIRECTORY_MOVIES)
 //                moviesDir?.mkdirs()
+
                 val navController = rememberNavController()
                 SetupNavGraph(navController)
             }

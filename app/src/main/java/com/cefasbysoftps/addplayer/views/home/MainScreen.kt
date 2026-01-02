@@ -15,12 +15,35 @@ import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun MainScreen(navController: NavController, viewModel: DownloaderViewModel = viewModel()) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+
+    val sessionDataStore = remember {
+        SessionDataStore(context)
+    }
+
+    val lgviewModel: LoginViewModel = viewModel(
+        factory = LoginViewModelFactory(sessionDataStore)
+    )
+
+    val loggedOut by lgviewModel.loggedOut.collectAsState()
+    LaunchedEffect(loggedOut) {
+        if (loggedOut) {
+            navController.navigate("login") {
+                popUpTo("main") { inclusive = true }
+            }
+        }
+    }
+
+
 
     // Instanciamos el PlayerViewModel para obtener el tiempo acumulado
     val playerViewModel: PlayerViewModel = viewModel(
@@ -69,6 +92,13 @@ fun MainScreen(navController: NavController, viewModel: DownloaderViewModel = vi
             }
         ) {
             Text("Descargar video")
+        }
+
+        Button(  modifier = Modifier.padding(top = 16.dp),
+            onClick = {
+                lgviewModel.logout()
+            }) {
+            Text("Salir")
         }
     }
 }

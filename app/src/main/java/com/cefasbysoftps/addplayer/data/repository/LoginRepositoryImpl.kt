@@ -1,13 +1,18 @@
 class LoginRepositoryImpl(
-    private val localDataSource: FakeUserLocalDataSource
-) {
+    private val api: AuthApi
+) : LoginRepository {
 
-    fun login(username: String, password: String): User? {
-        val isValid = localDataSource.validateCredentials(username, password)
-        return if (isValid) {
-            localDataSource.getUser(username)
-        } else {
-            null
+    override suspend fun login(
+        email: String,
+        password: String
+    ): Result<LoginResponse> {
+        return try {
+            val response = api.login(
+                LoginRequest(email, password)
+            )
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 }

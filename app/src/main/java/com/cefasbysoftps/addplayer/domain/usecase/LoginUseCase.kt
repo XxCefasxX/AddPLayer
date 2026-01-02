@@ -1,8 +1,10 @@
 class LoginUseCase(
-    private val repository: LoginRepositoryImpl
+    private val repository: LoginRepository
 ) {
-
-    operator fun invoke(username: String, password: String): User? {
-        return repository.login(username, password)
+    suspend operator fun invoke(
+        email: String,
+        password: String
+    ): Result<LoginResponse> {
+        return repository.login(email, password)
     }
 }
