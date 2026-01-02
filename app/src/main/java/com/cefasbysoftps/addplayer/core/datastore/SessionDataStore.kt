@@ -20,4 +20,10 @@ class SessionDataStore(private val context: Context) {
             prefs[KEY_IS_LOGGED_IN] = value
         }
     }
+    suspend fun clearSession() {
+        context.sessionDataStore.edit { prefs ->
+            prefs.clear()
+        }
+    }
+
 }

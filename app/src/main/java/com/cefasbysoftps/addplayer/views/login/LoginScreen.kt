@@ -29,6 +29,7 @@ fun LoginScreen(
     var password by remember { mutableStateOf("") }
 
     LaunchedEffect(loginSuccess) {
+
         if (loginSuccess) {
             navController.navigate("main") {
                 popUpTo("login") { inclusive = true }
