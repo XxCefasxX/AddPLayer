@@ -27,6 +27,8 @@ class PlayerViewModel(
 
     private val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
 
+    val currentDate: String
+        get() = dateFormat.format(System.currentTimeMillis())
 
     private fun todayKey(): String {
         val today = dateFormat.format(System.currentTimeMillis())
@@ -35,10 +37,22 @@ class PlayerViewModel(
 
 
     var accumulatedTimeMs: Long
-        get() = prefs.getLong(todayKey(), 0L)
-        private set(tiempo) {
-            prefs.edit { putLong(todayKey(), tiempo) }
+        get() {
+            val lastDay = prefs.getString("last_day", "") ?: ""
+            val today = currentDate
+
+            if (lastDay != today) {
+                prefs.edit()
+                    .putString("last_day", today)
+                    .putLong("accumulated_time", 0L)
+                    .apply()
+            }
+            return prefs.getLong("accumulated_time", 0L)
         }
+        private set(value) {
+            prefs.edit { putLong("accumulated_time", value) }
+        }
+
 
     fun loadDummyVideo() {
         _videoPath.value = "/sdcard/Android/data/com.cefasbysoftps.addplayer/files/Movies/demo.mp4"
