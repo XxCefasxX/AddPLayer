@@ -17,7 +17,9 @@ class SessionDataStore(private val context: Context) {
     private val KEY_LAST_NAME = stringPreferencesKey("last_name")
     private val KEY_EMAIL = stringPreferencesKey("email")
 
-
+    val userId: Flow<Int?> = context.sessionDataStore.data.map {
+        it[KEY_USER_ID]
+    }
     val user: Flow<User?> = context.sessionDataStore.data.map { prefs ->
         val id = prefs[KEY_USER_ID] ?: return@map null
 
