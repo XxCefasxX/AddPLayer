@@ -30,6 +30,7 @@ fun MainScreen(navController: NavController, viewModel: DownloaderViewModel = vi
         SessionDataStore(context)
     }
 
+    val userId by sessionDataStore.userId.collectAsState(initial = null)
     val lgviewModel: LoginViewModel = viewModel(
         factory = LoginViewModelFactory(sessionDataStore)
     )
@@ -45,18 +46,7 @@ fun MainScreen(navController: NavController, viewModel: DownloaderViewModel = vi
 
 
 
-    // Instanciamos el PlayerViewModel para obtener el tiempo acumulado
-    val playerViewModel: PlayerViewModel = viewModel(
-        factory = object : androidx.lifecycle.ViewModelProvider.Factory {
-            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                if (modelClass.isAssignableFrom(PlayerViewModel::class.java)) {
-                    @Suppress("UNCHECKED_CAST")
-                    return PlayerViewModel(context.applicationContext as Application) as T
-                }
-                throw IllegalArgumentException("Unknown ViewModel class")
-            }
-        }
-    )
+
 
 
 
@@ -65,10 +55,28 @@ fun MainScreen(navController: NavController, viewModel: DownloaderViewModel = vi
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) { // Texto con tiempo acumulado
-        Text(
-            text = "Tiempo reproducido hoy: ${playerViewModel.accumulatedTimeMs / 1000 / 60} min",
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
+
+        // Instanciamos el PlayerViewModel para obtener el tiempo acumulado
+        userId?.let { id ->
+            val playerViewModel: PlayerViewModel = viewModel(
+                factory = object : androidx.lifecycle.ViewModelProvider.Factory {
+                    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                        if (modelClass.isAssignableFrom(PlayerViewModel::class.java)) {
+                            @Suppress("UNCHECKED_CAST")
+                            return PlayerViewModel(
+                                context.applicationContext as Application,
+                                id
+                            ) as T
+                        }
+                        throw IllegalArgumentException("Unknown ViewModel class")
+                    }
+                }
+            )
+            Text(
+                text = "Tiempo reproducido hoy: ${playerViewModel.accumulatedTimeMs / 1000 / 60} min",
+                modifier = Modifier.padding(bottom = 24.dp)
+            )
+        }
         Button(onClick = {
             // Navegar al PlayerScreen
             navController.navigate("player")
