@@ -2,6 +2,7 @@ import android.R
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Environment
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
+import java.io.File
 
 class PlayerViewModel(
     application: Application,
@@ -54,8 +56,17 @@ class PlayerViewModel(
         }
 
 
-    fun loadDummyVideo() {
-        _videoPath.value = "/sdcard/Android/data/com.cefasbysoftps.addplayer/files/Movies/demo.mp4"
+    fun loadDummyVideo(context: Context) {
+        val file = File(
+            context.getExternalFilesDir(Environment.DIRECTORY_MOVIES),
+            "demo.mp4"
+        )
+
+        if (file.exists()) {
+            _videoPath.value = file.absolutePath
+        } else {
+            _videoPath.value = null
+        }
     }
 
 
