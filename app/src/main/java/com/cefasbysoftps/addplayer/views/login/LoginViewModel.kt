@@ -1,3 +1,4 @@
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,24 +25,31 @@ class LoginViewModel(
 
 
         viewModelScope.launch {
-            val result = loginUseCase(email, password)
 
-            result
-                .onSuccess {
-                        response ->
-                    sessionDataStore.saveUser(
-                        User(
-                            userID = response.user.userID,
-                            name = response.user.name,
-                            lastName = response.user.lastName,
-                            email = response.user.email
+            try {
+                val result = loginUseCase(email, password)
+
+                result
+                    .onSuccess {
+                            response ->
+                        sessionDataStore.saveUser(
+                            User(
+                                userID = response.user.userID,
+                                name = response.user.name,
+                                lastName = response.user.lastName,
+                                email = response.user.email
+                            )
                         )
-                    )
-                    _loginSuccess.value = true
-                }
-                .onFailure {
-                    _error.value = "Credenciales inválidas"
-                }
+                        _loginSuccess.value = true
+                    }
+                    .onFailure { response ->
+                        _error.value = "Credenciales inválidas"
+                        Log.e("API_ERROR", response.message!!)
+                    }
+            } catch (e: Exception) {
+                Log.e("API_ERROR", e.stackTraceToString())
+            }
+
         }
     }
     fun logout(){

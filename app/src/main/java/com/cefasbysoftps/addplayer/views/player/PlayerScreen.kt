@@ -1,5 +1,6 @@
 import android.app.Application
 import android.media.browse.MediaBrowser
+import android.net.Uri
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -17,9 +18,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.MediaItem
 import androidx.media3.ui.PlayerView
-
-
-
+import java.io.File
 
 
 @Composable
@@ -51,10 +50,12 @@ fun PlayerScreen(
         )
 
 
-        viewModel.loadDummyVideo()
         val videoPath by viewModel.videoPath.collectAsState()
+        val context = LocalContext.current
 
-
+        LaunchedEffect(Unit) {
+            viewModel.loadDummyVideo(context)
+        }
         val exoPlayer = remember {
             ExoPlayer.Builder(context).build().apply {
                 repeatMode = ExoPlayer.REPEAT_MODE_ONE
@@ -64,7 +65,7 @@ fun PlayerScreen(
         LaunchedEffect(videoPath) {
             videoPath?.let { path ->
                 viewModel.startTracking()
-                val mediaItem = MediaItem.fromUri(path)
+                val mediaItem = MediaItem.fromUri(Uri.fromFile(File(path)))
                 exoPlayer.setMediaItem(mediaItem)
                 exoPlayer.prepare()
                 exoPlayer.play()
