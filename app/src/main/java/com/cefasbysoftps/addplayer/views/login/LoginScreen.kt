@@ -4,6 +4,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -22,14 +24,16 @@ fun LoginScreen(
         factory = LoginViewModelFactory(sessionDataStore)
     )
 
-    val loginSuccess by viewModel.loginSuccess.collectAsState()
     val errorMessage by viewModel.error.collectAsState()
 
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    LaunchedEffect(loginSuccess) {
-        if (loginSuccess) {
+
+    val user by sessionDataStore.user.collectAsState(initial = null)
+
+    LaunchedEffect(user) {
+        if (user != null) {
             navController.navigate("main") {
                 popUpTo("login") { inclusive = true }
             }
@@ -53,7 +57,8 @@ fun LoginScreen(
         TextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Contraseña") }
+            label = { Text("Contraseña") },
+            visualTransformation = PasswordVisualTransformation()
         )
 
         Spacer(modifier = Modifier.height(12.dp))

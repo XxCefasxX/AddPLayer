@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.cefasbysoftps.addplayer"
-        minSdk = 30
+        minSdk = 24
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -76,5 +76,10 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    // Retrofit base
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    // Convertidor JSON (elige uno)
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
 }

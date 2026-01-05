@@ -1,6 +1,7 @@
 package com.cefasbysoftps.addplayer
 
 import DownloaderViewModel
+import HistoryScreen
 import LoginScreen
 import MainScreen
 import PlayerScreen
@@ -31,8 +32,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AddPLayerTheme {
+
 //                val moviesDir = getExternalFilesDir(Environment.DIRECTORY_MOVIES)
 //                moviesDir?.mkdirs()
+
                 val navController = rememberNavController()
                 SetupNavGraph(navController)
             }
@@ -56,6 +59,9 @@ fun SetupNavGraph(navController: NavHostController) {
             MainScreen(navController)
         }
 
+        composable("history") {
+            HistoryScreen(navController)
+        }
         composable("player") {
             PlayerScreen()
         }

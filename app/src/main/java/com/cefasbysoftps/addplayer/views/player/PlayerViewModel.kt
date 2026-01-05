@@ -2,6 +2,7 @@ import android.R
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Environment
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,8 +11,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import androidx.core.content.edit
+import java.io.File
 
-class PlayerViewModel(application: Application) : AndroidViewModel(application)  {
+class PlayerViewModel(
+    application: Application,
+    private val userId: Int
+) : AndroidViewModel(application) {
 
     private val _videoPath = MutableStateFlow<String?>(null)
     val videoPath = _videoPath.asStateFlow()
@@ -20,23 +26,47 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
     private var trackingJob: Job? = null
     private val prefs: SharedPreferences =
         application.getSharedPreferences("video_time", Context.MODE_PRIVATE)
+
     private val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+
+    val currentDate: String
+        get() = dateFormat.format(System.currentTimeMillis())
+
+    private fun todayKey(): String {
+        val today = dateFormat.format(System.currentTimeMillis())
+        return "time_${userId}_$today"
+    }
 
 
     var accumulatedTimeMs: Long
         get() {
             val lastDay = prefs.getString("last_day", "") ?: ""
-            val today = dateFormat.format(System.currentTimeMillis())
+            val today = currentDate
+
             if (lastDay != today) {
-                // Día nuevo → reiniciar contador
-                prefs.edit().putString("last_day", today).putLong("accumulated_time", 0L).apply()
+                prefs.edit()
+                    .putString("last_day", today)
+                    .putLong("accumulated_time", 0L)
+                    .apply()
             }
             return prefs.getLong("accumulated_time", 0L)
         }
-        private set(value) = prefs.edit().putLong("accumulated_time", value).apply()
+        private set(value) {
+            prefs.edit { putLong("accumulated_time", value) }
+        }
 
-    fun loadDummyVideo() {
-        _videoPath.value =  "/sdcard/Android/data/com.cefasbysoftps.addplayer/files/Movies/demo.mp4"
+
+    fun loadDummyVideo(context: Context) {
+        val file = File(
+            context.getExternalFilesDir(Environment.DIRECTORY_MOVIES),
+            "demo.mp4"
+        )
+
+        if (file.exists()) {
+            _videoPath.value = file.absolutePath
+        } else {
+            _videoPath.value = null
+        }
     }
 
 
