@@ -19,6 +19,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.MediaItem
 import androidx.media3.ui.PlayerView
 import java.io.File
+import android.app.Activity
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.WindowInsetsCompat
+import android.view.WindowManager
 
 
 @Composable
@@ -26,6 +31,42 @@ fun PlayerScreen(
 
 ) {
     val context = LocalContext.current
+    val activity = context as Activity
+
+    //Pantaalla completa
+    DisposableEffect(Unit) {
+        WindowCompat.setDecorFitsSystemWindows(activity.window, false)
+
+        val controller = WindowInsetsControllerCompat(
+            activity.window,
+            activity.window.decorView
+        )
+
+        controller.hide(
+            WindowInsetsCompat.Type.statusBars() or
+                    WindowInsetsCompat.Type.navigationBars()
+
+        )
+
+        controller.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+        onDispose {
+            controller.show(
+                WindowInsetsCompat.Type.statusBars() or
+                        WindowInsetsCompat.Type.navigationBars()
+
+            )
+        }
+    }
+
+    DisposableEffect(Unit) {
+        activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+        onDispose {
+            activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+    }
 
     val sessionDataStore = remember {
         SessionDataStore(context)
