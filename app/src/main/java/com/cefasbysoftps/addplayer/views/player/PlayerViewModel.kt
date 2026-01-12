@@ -1,8 +1,12 @@
+
+
 import android.R
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Environment
+import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +16,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.application
+import androidx.room.Room
+import com.cefasbysoftps.addplayer.core.datastore.AppDatabase
+import com.cefasbysoftps.addplayer.core.datastore.ReportEntity
+import kotlinx.coroutines.flow.StateFlow
 import java.io.File
 
 class PlayerViewModel(
@@ -38,6 +48,11 @@ class PlayerViewModel(
     }
 
 
+    private val _reportsState = MutableStateFlow<List<ReportEntity>>(emptyList())
+    val reportsState: StateFlow<List<ReportEntity>> = _reportsState
+
+
+
     var accumulatedTimeMs: Long
         get() {
             val lastDay = prefs.getString("last_day", "") ?: ""
@@ -54,6 +69,7 @@ class PlayerViewModel(
         private set(value) {
             prefs.edit { putLong("accumulated_time", value) }
         }
+
 
 
     fun loadDummyVideo(context: Context) {
@@ -84,5 +100,44 @@ class PlayerViewModel(
     // Pausa el contador
     fun stopTracking() {
         trackingJob?.cancel()
+    }
+
+
+
+
+    private val database = Room.databaseBuilder(
+        application.applicationContext,
+        AppDatabase::class.java,
+        "adplayer_db"
+    ).build()
+//
+    private val reportDao = database.reportDao()
+
+    fun savePlayback(
+        userId: String,
+        secondsPlayed: Long
+    ) {
+        viewModelScope.launch {
+            reportDao.insert(
+                ReportEntity(userId= userId, secondsPlayed =  secondsPlayed
+                )
+            )
+        }
+    }
+
+    fun loadReports(){
+        viewModelScope.launch {
+            val reports = reportDao.getAll()
+            _reportsState.value = reports
+            Log.d("data", "Directo DAO: $reports")
+        }
+    }
+
+    fun loadUserReports(userId: Int){
+        viewModelScope.launch {
+            val reports = reportDao.getByUser(userId)
+            _reportsState.value = reports
+            Log.d("data", "reportes del usuario $userId: $reports")
+        }
     }
 }

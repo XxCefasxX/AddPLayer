@@ -1,4 +1,5 @@
 import android.app.Application
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -6,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -22,8 +24,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
+import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.LaunchedEffect
+import androidx.media3.common.MediaItem
+import java.io.File
 
 @Composable
 fun HistoryScreen(
@@ -35,8 +43,8 @@ fun HistoryScreen(
         SessionDataStore(context)
     }
 
-    val viewModel: HistoryViewModel = viewModel(
-    )
+    val viewModel: HistoryViewModel = viewModel( )
+
     val userId by sessionDataStore.userId.collectAsState(initial = null)
     userId?.let { id ->
         val playerViewModel: PlayerViewModel = viewModel(
@@ -94,12 +102,27 @@ fun HistoryScreen(
                         val date = playerViewModel.currentDate
                         viewModel.sendReport(id, date, tiempo.toInt())
                     }) {
-                    Text("Enviar",
-                        style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        "Enviar",
+                        style = MaterialTheme.typography.titleLarge
+                    )
                 }
             }
 
 
+        }
+        val reports by playerViewModel.reportsState.collectAsState()
+
+        LaunchedEffect(Unit) {
+            userId?.let { id->
+                playerViewModel.loadUserReports(id)
+            }
+
+        }
+        LazyColumn {
+            items(reports) { report ->
+                Text(report.secondsPlayed.toString())
+            }
         }
 
     }

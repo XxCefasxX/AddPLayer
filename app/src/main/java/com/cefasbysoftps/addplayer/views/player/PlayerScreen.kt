@@ -20,10 +20,14 @@ import androidx.media3.common.MediaItem
 import androidx.media3.ui.PlayerView
 import java.io.File
 import android.app.Activity
+import android.util.Log
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.WindowInsetsCompat
 import android.view.WindowManager
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import kotlin.math.log
 
 
 @Composable
@@ -32,7 +36,6 @@ fun PlayerScreen(
 ) {
     val context = LocalContext.current
     val activity = context as Activity
-
     //Pantaalla completa
     DisposableEffect(Unit) {
         WindowCompat.setDecorFitsSystemWindows(activity.window, false)
@@ -102,6 +105,7 @@ fun PlayerScreen(
                 repeatMode = ExoPlayer.REPEAT_MODE_ONE
             }
         }
+        val reports by viewModel.reportsState.collectAsState()
 
         LaunchedEffect(videoPath) {
             videoPath?.let { path ->
@@ -110,11 +114,20 @@ fun PlayerScreen(
                 exoPlayer.setMediaItem(mediaItem)
                 exoPlayer.prepare()
                 exoPlayer.play()
+                viewModel.loadReports()
             }
         }
-
+        LaunchedEffect(reports) {
+            Log.d("data", "Reports en UI: $reports")
+        }
         DisposableEffect(Unit) {
             onDispose {
+                viewModel.savePlayback("20", 120)
+            }
+        }
+        DisposableEffect(Unit) {
+            onDispose {
+
                 viewModel.stopTracking()
                 exoPlayer.release()
             }
