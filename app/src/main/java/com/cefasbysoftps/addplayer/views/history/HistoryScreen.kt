@@ -43,8 +43,19 @@ fun HistoryScreen(
         SessionDataStore(context)
     }
 
-    val viewModel: HistoryViewModel = viewModel( )
-
+    val viewModel: HistoryViewModel =  viewModel(
+        factory = object : androidx.lifecycle.ViewModelProvider.Factory {
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                if (modelClass.isAssignableFrom(HistoryViewModel::class.java)) {
+                    @Suppress("UNCHECKED_CAST")
+                    return HistoryViewModel(
+                        context.applicationContext as Application
+                    ) as T
+                }
+                throw IllegalArgumentException("Unknown ViewModel class")
+            }
+        }
+    )
     val userId by sessionDataStore.userId.collectAsState(initial = null)
     userId?.let { id ->
         val playerViewModel: PlayerViewModel = viewModel(
@@ -111,11 +122,11 @@ fun HistoryScreen(
 
 
         }
-        val reports by playerViewModel.reportsState.collectAsState()
+        val reports by viewModel.reportsState.collectAsState()
 
         LaunchedEffect(Unit) {
             userId?.let { id->
-                playerViewModel.loadUserReports(id)
+                viewModel.loadUserReports(id)
             }
 
         }

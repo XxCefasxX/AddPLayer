@@ -1,5 +1,9 @@
-class ReportRepositoryImpl(
-    private val api: ReportApi
+import com.cefasbysoftps.addplayer.core.datastore.ReportDao
+import com.cefasbysoftps.addplayer.core.datastore.ReportEntity
+
+    class ReportRepositoryImpl(
+        private val reportDao: ReportDao,
+        private val api: ReportApi
 ) : IReportRepository {
 
 
@@ -16,5 +20,9 @@ class ReportRepositoryImpl(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    override suspend fun loadUserLocalReports(userId: Int): List<ReportEntity> {
+       return reportDao.getByUser(userId)
     }
 }
