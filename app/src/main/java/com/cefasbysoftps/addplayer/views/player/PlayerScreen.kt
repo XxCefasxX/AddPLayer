@@ -114,7 +114,7 @@ fun PlayerScreen(
                 exoPlayer.setMediaItem(mediaItem)
                 exoPlayer.prepare()
                 exoPlayer.play()
-                viewModel.loadReports()
+                //viewModel.loadReports()
             }
         }
         LaunchedEffect(reports) {
@@ -122,7 +122,10 @@ fun PlayerScreen(
         }
         DisposableEffect(Unit) {
             onDispose {
-                viewModel.savePlayback("20", 120)
+                //viewModel.savePlayback("33", 120)
+                userId?.let { id ->
+                    viewModel.savePlayback(id.toString(), viewModel.accumulatedTimeMs)
+                }
             }
         }
         DisposableEffect(Unit) {
