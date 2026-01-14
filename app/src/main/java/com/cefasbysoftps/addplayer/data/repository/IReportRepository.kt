@@ -8,4 +8,6 @@ interface IReportRepository {
     ): Result<ReportResponse>
 
     suspend fun loadUserLocalReports(userId: Int): List<ReportEntity>
+
+    suspend fun loadUseTodayLocalReports(userId: Int, date: Long): List<ReportEntity>
 }

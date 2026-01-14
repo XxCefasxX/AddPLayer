@@ -5,13 +5,16 @@ import androidx.room.Insert
 import androidx.room.Query
 
 @Dao
-interface ReportDao{
+interface ReportDao {
     @Query("SELECT * FROM report")
-    suspend fun  getAll(): List<ReportEntity>
+    suspend fun getAll(): List<ReportEntity>
 
     @Insert
     suspend fun insert(reportEntity: ReportEntity)
 
     @Query("SELECT * FROM report WHERE userId = :userId")
-    suspend fun  getByUser(userId:Int): List<ReportEntity>
+    suspend fun getByUser(userId: Int): List<ReportEntity>
+
+    @Query("SELECT * FROM report WHERE userId = :userId and date=:date")
+    suspend fun getByUserToday(userId: Int, date: Long): List<ReportEntity>
 }
