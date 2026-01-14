@@ -1,5 +1,3 @@
-
-
 import android.R
 import android.app.Application
 import android.content.Context
@@ -23,6 +21,11 @@ import com.cefasbysoftps.addplayer.core.datastore.AppDatabase
 import com.cefasbysoftps.addplayer.core.datastore.ReportEntity
 import kotlinx.coroutines.flow.StateFlow
 import java.io.File
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.Calendar
+import java.util.Date
 
 class PlayerViewModel(
     application: Application,
@@ -52,7 +55,6 @@ class PlayerViewModel(
     val reportsState: StateFlow<List<ReportEntity>> = _reportsState
 
 
-
     var accumulatedTimeMs: Long
         get() {
             val lastDay = prefs.getString("last_day", "") ?: ""
@@ -69,7 +71,6 @@ class PlayerViewModel(
         private set(value) {
             prefs.edit { putLong("accumulated_time", value) }
         }
-
 
 
     fun loadDummyVideo(context: Context) {
@@ -103,14 +104,15 @@ class PlayerViewModel(
     }
 
 
-
-
     private val database = Room.databaseBuilder(
         application.applicationContext,
         AppDatabase::class.java,
         "adplayer_db"
-    ).build()
-//
+    )
+//        .fallbackToDestructiveMigration()
+        .build()
+
+    //
     private val reportDao = database.reportDao()
 
     fun savePlayback(
@@ -118,14 +120,29 @@ class PlayerViewModel(
         secondsPlayed: Long
     ) {
         viewModelScope.launch {
+            val fecha = todayEpoch()
             reportDao.insert(
-                ReportEntity(userId= userId, secondsPlayed =  secondsPlayed
+                ReportEntity(
+                    userId = userId,
+                    secondsPlayed = secondsPlayed,
+                    date = fecha,
+                    startPlay = System.currentTimeMillis(),
+                    endPlay = System.currentTimeMillis()
                 )
             )
         }
     }
 
-    fun loadReports(){
+    fun todayEpoch(): Long {
+        val cal = Calendar.getInstance()
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+        cal.set(Calendar.MINUTE, 0)
+        cal.set(Calendar.SECOND, 0)
+        cal.set(Calendar.MILLISECOND, 0)
+        return cal.timeInMillis
+    }
+
+    fun loadReports() {
         viewModelScope.launch {
             val reports = reportDao.getAll()
             _reportsState.value = reports
@@ -133,7 +150,7 @@ class PlayerViewModel(
         }
     }
 
-    fun loadUserReports(userId: Int){
+    fun loadUserReports(userId: Int) {
         viewModelScope.launch {
             val reports = reportDao.getByUser(userId)
             _reportsState.value = reports

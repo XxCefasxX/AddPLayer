@@ -1,9 +1,9 @@
 import com.cefasbysoftps.addplayer.core.datastore.ReportDao
 import com.cefasbysoftps.addplayer.core.datastore.ReportEntity
 
-    class ReportRepositoryImpl(
-        private val reportDao: ReportDao,
-        private val api: ReportApi
+class ReportRepositoryImpl(
+    private val reportDao: ReportDao,
+    private val api: ReportApi
 ) : IReportRepository {
 
 
@@ -23,6 +23,13 @@ import com.cefasbysoftps.addplayer.core.datastore.ReportEntity
     }
 
     override suspend fun loadUserLocalReports(userId: Int): List<ReportEntity> {
-       return reportDao.getByUser(userId)
+        return reportDao.getByUser(userId)
+    }
+
+    override suspend fun loadUseTodayLocalReports(
+        userId: Int,
+        date: Long
+    ): List<ReportEntity> {
+        return reportDao.getByUserToday(userId, date)
     }
 }

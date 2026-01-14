@@ -1,5 +1,6 @@
 import android.app.Application
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -30,8 +31,14 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.MediaItem
 import java.io.File
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.ZoneId
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun HistoryScreen(
@@ -43,7 +50,7 @@ fun HistoryScreen(
         SessionDataStore(context)
     }
 
-    val viewModel: HistoryViewModel =  viewModel(
+    val viewModel: HistoryViewModel = viewModel(
         factory = object : androidx.lifecycle.ViewModelProvider.Factory {
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
                 if (modelClass.isAssignableFrom(HistoryViewModel::class.java)) {
@@ -72,6 +79,7 @@ fun HistoryScreen(
                 }
             }
         )
+        val accumulatedTime by viewModel.accumulatedTimeMs.collectAsStateWithLifecycle()
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -95,7 +103,7 @@ fun HistoryScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "${playerViewModel.accumulatedTimeMs / 1000 / 60} min",
+                        text = "${accumulatedTime / 1000 / 60} min",
                         style = MaterialTheme.typography.displaySmall
                     )
                 }
@@ -109,7 +117,7 @@ fun HistoryScreen(
                         contentColor = Color.White  // Color del texto/icono
                     ),
                     onClick = {
-                        var tiempo = playerViewModel.accumulatedTimeMs / 1000 / 60
+                        var tiempo = accumulatedTime / 1000 / 60
                         val date = playerViewModel.currentDate
                         viewModel.sendReport(id, date, tiempo.toInt())
                     }) {
@@ -118,23 +126,38 @@ fun HistoryScreen(
                         style = MaterialTheme.typography.titleLarge
                     )
                 }
+                val reports by viewModel.reportsState.collectAsState()
+
+                LaunchedEffect(Unit) {
+                    val today = viewModel.todayEpoch()
+                    Log.d("History", "Fecha hoy $today")
+                    viewModel.loadTodayReports(id, today)
+                    //viewModel.loadUserReports(id)
+                }
+                LazyColumn {
+                    items(reports) { report ->
+                        Log.d("History", "Fecha reporte ${report.date}")
+
+                        val formatterDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                        val formatterTime = SimpleDateFormat("HH:mm", Locale.getDefault())
+                        val date = formatterDate.format(Date(report.date))
+                        val startTime = formatterTime.format(Date(report.startPlay))
+                        val endTime = formatterTime.format(Date(report.endPlay))
+
+
+                        val minutes = report.secondsPlayed / 60
+
+                        Text("Fecha:$date")
+                        Text("Inicio: $startTime")
+                        Text("Fin: $endTime")
+                        Text("Tiempo: $minutes")
+                    }
+                }
             }
 
 
         }
-        val reports by viewModel.reportsState.collectAsState()
 
-        LaunchedEffect(Unit) {
-            userId?.let { id->
-                viewModel.loadUserReports(id)
-            }
-
-        }
-        LazyColumn {
-            items(reports) { report ->
-                Text(report.secondsPlayed.toString())
-            }
-        }
 
     }
 }

@@ -4,7 +4,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [ReportEntity::class],
-    version = 1
+    version = 2
 )
 abstract class AppDatabase: RoomDatabase() {
     abstract fun reportDao(): ReportDao
