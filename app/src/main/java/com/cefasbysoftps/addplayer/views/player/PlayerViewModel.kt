@@ -54,7 +54,8 @@ class PlayerViewModel(
     private val _reportsState = MutableStateFlow<List<ReportEntity>>(emptyList())
     val reportsState: StateFlow<List<ReportEntity>> = _reportsState
 
-
+    var startTime: Long = 0
+    var endTime: Long = 0
     var accumulatedTimeMs: Long
         get() {
             val lastDay = prefs.getString("last_day", "") ?: ""
@@ -89,6 +90,7 @@ class PlayerViewModel(
 
     // Inicia el contador
     fun startTracking() {
+        startTime = System.currentTimeMillis()
         trackingJob?.cancel()
         trackingJob = viewModelScope.launch {
             while (true) {
@@ -121,13 +123,14 @@ class PlayerViewModel(
     ) {
         viewModelScope.launch {
             val fecha = todayEpoch()
+            endTime = System.currentTimeMillis()
             reportDao.insert(
                 ReportEntity(
                     userId = userId,
                     secondsPlayed = secondsPlayed,
                     date = fecha,
-                    startPlay = System.currentTimeMillis(),
-                    endPlay = System.currentTimeMillis()
+                    startPlay = startTime,
+                    endPlay = endTime
                 )
             )
         }
