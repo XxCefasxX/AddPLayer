@@ -145,7 +145,7 @@ fun HistoryScreen(
                         val endTime = formatterTime.format(Date(report.endPlay))
 
 
-                        val minutes = report.secondsPlayed / 60
+                        val minutes = report.secondsPlayed / 1000 / 60
 
                         Text("Fecha:$date")
                         Text("Inicio: $startTime")
