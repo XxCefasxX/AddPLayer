@@ -40,7 +40,23 @@ class ReportUseCase(
         }
 
         return repository.loadUseTodayLocalReports(userId, date)
+    }
 
 
+    suspend fun loadUserSummary(userId: Int): List<ReportEntity> {
+//        val lista = repository.loadUserSummary(userId)
+//        var reportes = mutableListOf<ReportEntity>()
+//        for (report in lista) {
+//            var reporte =
+//                ReportEntity(
+//                    userId = userId.toString(),
+//                    secondsPlayed = report.secondsPlayed,
+//                    date = report.date,
+//                    startPlay = 0,
+//                    endPlay = 0
+//                )
+//            reportes.add(reporte)
+//        }
+        return repository.loadUserSummary(userId)
     }
 }

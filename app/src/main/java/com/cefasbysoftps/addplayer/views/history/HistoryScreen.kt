@@ -139,17 +139,13 @@ fun HistoryScreen(
                         Log.d("History", "Fecha reporte ${report.date}")
 
                         val formatterDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                        val formatterTime = SimpleDateFormat("HH:mm", Locale.getDefault())
                         val date = formatterDate.format(Date(report.date))
-                        val startTime = formatterTime.format(Date(report.startPlay))
-                        val endTime = formatterTime.format(Date(report.endPlay))
+
 
 
                         val minutes = report.secondsPlayed / 1000 / 60
 
                         Text("Fecha:$date")
-                        Text("Inicio: $startTime")
-                        Text("Fin: $endTime")
                         Text("Tiempo: $minutes")
                     }
                 }

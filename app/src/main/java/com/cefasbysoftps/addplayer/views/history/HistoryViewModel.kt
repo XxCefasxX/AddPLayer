@@ -85,7 +85,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
 
     fun loadUserReports(userId: Int) {
         viewModelScope.launch {
-            val reports = reportUseCase.loadUserLocalReports(userId)
+            val reports = reportUseCase.loadUserSummary(userId)
             _reportsState.value = reports
             //  Log.d("data", "reportes del usuario $userId: $reports")
         }
@@ -93,7 +93,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
 
     fun loadTodayReports(userId: Int, date: Long) {
         viewModelScope.launch {
-            val reports = reportUseCase.LoadLocalToday(userId, date)
+            val reports = reportUseCase.loadUserSummary(userId)
             _accumulatedTimeMs.value = reportUseCase.todayTime(userId, date)
             _reportsState.value = reports
             //Log.d("data", "reportes del usuario $userId: $reports")
