@@ -142,11 +142,18 @@ fun HistoryScreen(
                         val date = formatterDate.format(Date(report.date))
 
 
-
                         val minutes = report.secondsPlayed / 1000 / 60
 
                         Text("Fecha:$date")
                         Text("Tiempo: $minutes")
+                        Button(
+                            onClick = {
+
+                                viewModel.sendReport(id, date, minutes.toInt())
+                            }
+                        ) {
+                            Text("Enviar")
+                        }
                     }
                 }
             }
