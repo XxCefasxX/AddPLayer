@@ -32,4 +32,8 @@ class ReportRepositoryImpl(
     ): List<ReportEntity> {
         return reportDao.getByUserToday(userId, date)
     }
+
+    override suspend fun loadUserSummary(userId: Int): List<ReportEntity> {
+        return reportDao.getUserSummary(userId)
+    }
 }

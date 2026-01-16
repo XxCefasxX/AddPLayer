@@ -10,4 +10,6 @@ interface IReportRepository {
     suspend fun loadUserLocalReports(userId: Int): List<ReportEntity>
 
     suspend fun loadUseTodayLocalReports(userId: Int, date: Long): List<ReportEntity>
+
+    suspend fun loadUserSummary(userId: Int): List<ReportEntity>
 }
