@@ -3,6 +3,8 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Environment
+import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,7 +14,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.application
+import androidx.room.Room
+import com.cefasbysoftps.addplayer.core.datastore.AppDatabase
+import com.cefasbysoftps.addplayer.core.datastore.ReportEntity
+import kotlinx.coroutines.flow.StateFlow
 import java.io.File
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.Calendar
+import java.util.Date
 
 class PlayerViewModel(
     application: Application,
@@ -38,6 +51,11 @@ class PlayerViewModel(
     }
 
 
+    private val _reportsState = MutableStateFlow<List<ReportEntity>>(emptyList())
+    val reportsState: StateFlow<List<ReportEntity>> = _reportsState
+
+    var startTime: Long = 0
+    var endTime: Long = 0
     var accumulatedTimeMs: Long
         get() {
             val lastDay = prefs.getString("last_day", "") ?: ""
@@ -72,6 +90,7 @@ class PlayerViewModel(
 
     // Inicia el contador
     fun startTracking() {
+        startTime = System.currentTimeMillis()
         trackingJob?.cancel()
         trackingJob = viewModelScope.launch {
             while (true) {
@@ -84,5 +103,61 @@ class PlayerViewModel(
     // Pausa el contador
     fun stopTracking() {
         trackingJob?.cancel()
+    }
+
+
+    private val database = Room.databaseBuilder(
+        application.applicationContext,
+        AppDatabase::class.java,
+        "adplayer_db"
+    )
+//        .fallbackToDestructiveMigration()
+        .build()
+
+    //
+    private val reportDao = database.reportDao()
+
+    fun savePlayback(
+        userId: String,
+        secondsPlayed: Long
+    ) {
+        viewModelScope.launch {
+            val fecha = todayEpoch()
+            endTime = System.currentTimeMillis()
+            reportDao.insert(
+                ReportEntity(
+                    userId = userId,
+                    secondsPlayed = secondsPlayed,
+                    date = fecha,
+                    startPlay = startTime,
+                    endPlay = endTime
+                )
+            )
+        }
+    }
+
+    fun todayEpoch(): Long {
+        val cal = Calendar.getInstance()
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+        cal.set(Calendar.MINUTE, 0)
+        cal.set(Calendar.SECOND, 0)
+        cal.set(Calendar.MILLISECOND, 0)
+        return cal.timeInMillis
+    }
+
+    fun loadReports() {
+        viewModelScope.launch {
+            val reports = reportDao.getAll()
+            _reportsState.value = reports
+            Log.d("data", "Directo DAO: $reports")
+        }
+    }
+
+    fun loadUserReports(userId: Int) {
+        viewModelScope.launch {
+            val reports = reportDao.getByUser(userId)
+            _reportsState.value = reports
+            Log.d("data", "reportes del usuario $userId: $reports")
+        }
     }
 }

@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("kotlin-kapt")
 }
 
 android {
@@ -42,6 +43,15 @@ android {
 }
 
 dependencies {
+
+    // Versión específica (verifica la última versión estable)
+    val room_version = "2.6.1"
+
+    // Versiones (verifica las más recientes)
+    val hilt_version = "2.48"  // Última versión estable
+    val hilt_navigation_version = "1.1.0"
+
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -81,5 +91,23 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     // Convertidor JSON (elige uno)
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+
+
+    // Room core
+    implementation("androidx.room:room-runtime:$room_version")
+
+    // Kotlin Extensions y Coroutines support
+    implementation("androidx.room:room-ktx:$room_version")
+
+    // Anotaciones processor
+    kapt("androidx.room:room-compiler:$room_version")
+
+    // Para usar corrutinas con Room
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+
+    implementation("com.jakewharton.threetenabp:threetenabp:1.4.6")
+
 
 }
